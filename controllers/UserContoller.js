@@ -2,7 +2,7 @@
 exports.CreateUser = function( req, res ){
 	console.log('CreateUser ... ');
 	res.status(500)
-	json({
+	.json({
 		status : 'failed',
 		message : 'route not implemented'
 	})
@@ -11,7 +11,7 @@ exports.CreateUser = function( req, res ){
 exports.GetAllUsers = function( req, res ){
 	console.log('GetAllUsers ... ');
 	res.status(500)
-	json({
+	.json({
 		status : 'failed',
 		message : 'route not implemented'
 	})
@@ -21,7 +21,7 @@ exports.GetAllUsers = function( req, res ){
 exports.GetUser = function( req, res ){
 	console.log('GetUser ... ');
 	res.status(500)
-	json({
+	.json({
 		status : 'failed',
 		message : 'route not implemented'
 	})
@@ -30,7 +30,7 @@ exports.GetUser = function( req, res ){
 exports.UpdateUser = function( req, res ){
 	console.log('UpdateUser ... ');
 	res.status(500)
-	json({
+	.json({
 		status : 'failed',
 		message : 'route not implemented'
 	})
@@ -39,7 +39,7 @@ exports.UpdateUser = function( req, res ){
 exports.DeleteUser = function( req, res ){
 	console.log('DeleteUser ... ');
 	res.status(500)
-	json({
+	.json({
 		status : 'failed',
 		message : 'route not implemented'
 	})

@@ -2,7 +2,7 @@
 exports.CreateTrip = function( req, res ){
 	console.log('CreateTrip ... ');
 	res.status(500)
-	json({
+	.json({
 		status : 'failed',
 		message : 'route not implemented'
 	})
@@ -11,7 +11,7 @@ exports.CreateTrip = function( req, res ){
 exports.GetAllTrips = function( req, res ){
 	console.log('GetAllTrips ... ');
 	res.status(500)
-	json({
+	.json({
 		status : 'failed',
 		message : 'route not implemented'
 	})
@@ -21,7 +21,7 @@ exports.GetAllTrips = function( req, res ){
 exports.GetTrip = function( req, res ){
 	console.log('GetTrip ... ');
 	res.status(500)
-	json({
+	.json({
 		status : 'failed',
 		message : 'route not implemented'
 	})
@@ -30,7 +30,7 @@ exports.GetTrip = function( req, res ){
 exports.UpdateTrip = function( req, res ){
 	console.log('UpdateTrip ... ');
 	res.status(500)
-	json({
+	.json({
 		status : 'failed',
 		message : 'route not implemented'
 	})
@@ -39,7 +39,7 @@ exports.UpdateTrip = function( req, res ){
 exports.DeleteTrip = function( req, res ){
 	console.log('DeleteTrip ... ');
 	res.status(500)
-	json({
+	.json({
 		status : 'failed',
 		message : 'route not implemented'
 	})
