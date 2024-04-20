@@ -1,4 +1,5 @@
 const Tour = require('../models/TripModel');
+const APIFeatures = require('../utils/apiFeatures');
 
 exports.CreateTrip = async function( req, res ){
 	try{
@@ -19,23 +20,15 @@ exports.CreateTrip = async function( req, res ){
 }
 
 exports.GetAllTrips = async function( req, res ){
-	console.log(req.query);
 	try{
-		let queryObj = {...req.query};
-		const excludeFields = ['page', 'sort', 'limit', 'fields'];
-		excludeFields.forEach(el => delete queryObj[el]);
-		
-		let queryStr = JSON.stringify(queryObj);
-		// mongodb oprtation is like this 
-		// { difficulty: 'easy', duration: { $gte: '5' }, page: '3' }
-		// but here is our query
-		// { difficulty: 'easy', duration: { gte: '5' }, page: '3' }
-		// gte gt lte lt
-		queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
+		const features = new APIFeatures(Tour.find(), req.query);
+		features
+		.filter()
+		.sort()
+		.limitFileds()
+		.paginate();
 
-		queryObj = JSON.parse(queryStr);
-		const tours = await Tour.find(queryObj);
-	
+		const tours = await features.Query;
 		res.status(200)
 		.json({
 			status : 'Success',
@@ -100,6 +93,95 @@ exports.DeleteTrip = async function( req, res ){
 		.json({
 			status: 'Success',
 			data: tour
+		})
+	}
+	catch(err){
+		res.status(400)
+		.json({
+			status : 'Fail',
+			message: err
+		})
+	}
+}
+
+// aggregation
+
+exports.getTripStats = async (req, res) => {
+	try{
+		const stats = await Tour.aggregate([
+			{
+				$match: {ratingsAverage: {$gte : 4.5}}
+			},
+			{
+				$group: {
+					_id: { $toUpper : '$difficulty'},
+					numTours : {$sum: 1},
+					numRating : {$sum : '$ratingsQuantity'},
+					avgRating: {$avg: '$ratingsAverage'},
+					avgPrice: {$avg : '$price'},
+					minPrice: {$min : '$price'},
+					maxPrice: {$max : '$price'}
+				}
+			},
+			{
+				$sort : {avgPrice: 1}
+			}
+		]);
+
+		res.status(200)
+		.json({
+			status : "Success",
+			data: stats
+		})
+	}
+	catch(err){
+		res.status(400)
+		.json({
+			status : 'Fail',
+			message: err
+		})
+	}
+}
+
+
+exports.getMonthlyPlan = async ( req, res) =>{
+	try{
+		const year = req.params.year * 1;
+
+		const plan = await Tour.aggregate([
+			{
+				$unwind: '$startDates'
+			},
+			{
+				$match : {
+					startDates: {$gte: new Date(`${year}-01-01`), 
+					$lte : new Date(`${year}-12-31`)}
+				}
+			},
+			{
+				$group:{
+					_id: { $month: '$startDates'},
+					numTourStarts: {$sum: 1},	
+					tours: { $push: '$name' }
+				}
+			},
+			{
+				$addFields : {month : '$_id'}
+			},
+			{
+				$sort: {month:1}
+			},
+			{
+				$limit : 6
+			}
+		]);
+	
+		console.log('year : ', year);
+		res.status(200)
+		.json({
+			status : 'Success',
+			result : plan.length,
+			data : plan
 		})
 	}
 	catch(err){
