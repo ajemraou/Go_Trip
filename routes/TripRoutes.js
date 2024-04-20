@@ -5,8 +5,16 @@ const {
 		GetAllTrips,
 		GetTrip,
 		UpdateTrip,
-		DeleteTrip
+		DeleteTrip,
+		getTripStats,
+		getMonthlyPlan
 	} = require('../controllers/TripController');
+	
+TripRouter.route('/trip-stats')
+.get(getTripStats);
+
+TripRouter.route('/monthly-plan/:year')
+.get(getMonthlyPlan)
 
 TripRouter.route('/')
 .get(GetAllTrips)
