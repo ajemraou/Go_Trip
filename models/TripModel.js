@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 /*	Mongoose starts with a Schema mapping to a MongoDB 
 	collection and defining document shape */
 const { Schema } = mongoose;
@@ -49,9 +50,10 @@ const TripSchema = new mongoose.Schema(
 	  },
 	  priceDiscount: {
 		type: Number,
-		validate: {
-		  validator: function(val) {
+		validate: { // Custom validator
+		  validator: function( val ) {
 			// this only points to current doc on NEW document creation
+			// so this function do not work with update document
 			return val < this.price;
 		  },
 		  message: 'Discount price ({VALUE}) should be below regular price'
@@ -85,8 +87,45 @@ const TripSchema = new mongoose.Schema(
 	{
 	  toJSON: { virtuals: true },
 	  toObject: { virtuals: true }
-	}
-  );
+	}, {
+		toJSON: {virtuals: true},
+		toObject: {virtuals: true},
+	});
+
+ // Virtual Properties
+TripSchema.virtual('durationWeeks').get(function(){
+	return this.duration / 7;
+});
+
+// Document MIDDLEWARE : run before .save() and create()
+TripSchema.pre('save', function(next){
+	console.log('from pre middlware');
+	// console.log(this);
+	// this document
+	next();
+})
+
+// Document MIDDLEWARE : run before .save() and create()
+TripSchema.post('save', function(doc, next){
+	console.log('document created with success');
+	
+	next();
+})
+
+
+// QUERY MIDDLEWARE
+TripSchema.pre(/^find/, function(next){
+	// this = query
+	 this.find({secretTour: {$ne : true}});
+	next();
+})
+
+// AGGREGATION MIDDLEWARE
+TripSchema.pre('aggregate', function(next){
+	console.log(this);
+	next();
+})
+
 
 /* Converting Our Schema into a model */
 const Tour = model('Tour', TripSchema);
