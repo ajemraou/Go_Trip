@@ -9,7 +9,12 @@ const {
 		getTripStats,
 		getMonthlyPlan
 	} = require('../controllers/TripController');
-	
+
+const {	
+		protect,
+		restrictTo
+	} = require('../controllers/authController');	
+
 TripRouter.route('/trip-stats')
 .get(getTripStats);
 
@@ -17,13 +22,13 @@ TripRouter.route('/monthly-plan/:year')
 .get(getMonthlyPlan)
 
 TripRouter.route('/')
-.get(GetAllTrips)
-.post(CreateTrip);
+.get(protect, GetAllTrips)
+.post(protect, CreateTrip);
 
 
 TripRouter.route('/:id')
-.get(GetTrip)
-.patch(UpdateTrip)
-.delete(DeleteTrip);
+.get(protect, GetTrip)
+.patch(protect, UpdateTrip)
+.delete(protect, restrictTo('admin', 'lead-guide'), DeleteTrip);
 
 module.exports = TripRouter;
