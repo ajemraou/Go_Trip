@@ -13,6 +13,26 @@ const SignToken = id => {
 	});
 }
 
+const CreateSendToken = (user, statusCode, res) => {
+	const token = SignToken(user._id);
+	const cookieOptions = {
+		expires : new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 86400000),
+		// secure : true, // only in production with https
+		httpOnly:true
+	}
+	
+	res.cookie('jwt', token, cookieOptions);
+
+	res.status(statusCode)
+	.json({
+		status : "Success",
+		token,
+		data:{
+			user
+		}
+	})
+}
+
 exports.SignUp = catchasync( async ( req, res, next ) => {
 	const newUser = await User.create(req.body);
 	// const newUser = await User.create({
@@ -21,15 +41,7 @@ exports.SignUp = catchasync( async ( req, res, next ) => {
 	// 	password : req.body.password,
 	// 	passwordConfirm : req.body.passwordConfirm
 	// });
-	const token = SignToken(newUser._id);
-	res.status(201)
-	.json({
-		status : 'Success',
-		token,
-		data : {
-			user : newUser,
-		}
-	})
+	CreateSendToken(newUser, 201, res);
 });
 
 exports.LogIn = catchasync( async ( req, res, next ) => {
@@ -42,13 +54,8 @@ exports.LogIn = catchasync( async ( req, res, next ) => {
 	if ( !user || !await user.correctPassword(password, user.password ) ){
 		return next(new AppError('Incorrect email or password', 401));
 	}
-	const token = SignToken(user._id);
 	// if everything ok, send token to client
-	res.status(200)
-	.json({
-		status: "Success",
-		token,
-	})
+	CreateSendToken(user, 200, res);
 });
 
 // const verification =  function(token, secret){
@@ -167,14 +174,8 @@ exports.resetPassword = async (req, res, next) => {
 	user.passwordResetExpires = undefined;
 	user.save();
 	// log the user in, send JWT
-	const token = SignToken(user._id);
 
-	res.status(200)
-	.json({
-		status : "Success",
-		message : 'valid token',
-		token 
-	});
+	CreateSendToken(user, 200, res);
 }
 
 exports.updatePassword = catchasync( async(req, res, next) => {
@@ -191,11 +192,5 @@ exports.updatePassword = catchasync( async(req, res, next) => {
 	user.passwordConfirm = passwordConfirm;
 	await user.save();
 	// lod user in, send JWT
-	const token = SignToken(user._id);
-	res.status(200)
-	.json({
-		stauts : "Success",
-		message : "Password Changed With Success!",
-		token
-	});
+	CreateSendToken(user, 200, res);
 });
