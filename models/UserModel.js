@@ -79,6 +79,11 @@ UserSchema.pre('save', async function(next){
 	return next();
 });
 
+UserSchema.pre(/^find/, async function(next){
+	this.find({active : {$ne : false}});
+	return next();
+});
+
 // instance method
 UserSchema.methods.correctPassword = async function(candidatePassword, userPassword){
 	return await bcrpy.compare(candidatePassword, userPassword);
