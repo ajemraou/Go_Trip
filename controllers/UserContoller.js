@@ -33,7 +33,7 @@ exports.UpdateMe = async (req, res, next) => {
 }
 
 exports.DeleteMe = async(req, res, next) => {
-=	const updaterUser = await User.findByIdAndUpdate(req.user._id, {active : false}, {
+	const updaterUser = await User.findByIdAndUpdate(req.user._id, {active : false}, {
 		new: true,
 		runValidators: true
 	}).select("+active");
