@@ -9,11 +9,14 @@ const {
 		getTripStats,
 		getMonthlyPlan
 	} = require('../controllers/TripController');
-
 const {	
 		protect,
 		restrictTo
-	} = require('../controllers/authController');	
+	} = require('../controllers/authController');
+
+const ReviewRouter = require('../routes/ReviewRoutes');
+
+TripRouter.use('/:TripId/review', ReviewRouter);
 
 TripRouter.route('/trip-stats')
 .get(getTripStats);
