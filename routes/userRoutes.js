@@ -6,7 +6,8 @@ const {
 		GetUser,
 		UpdateUser,
 		DeleteUser,
-		UpdateMe
+		UpdateMe,
+		DeleteMe
 	} = require('../controllers/UserContoller');
 
 const {
@@ -25,6 +26,7 @@ UserRouter.post('/forgotPassword', forgotPassword);
 UserRouter.patch('/resetPassword/:token', resetPassword);
 UserRouter.post('/updatePassword', protect, updatePassword);
 UserRouter.patch('/updateMe', protect, UpdateMe);
+UserRouter.delete('/deleteMe', protect, DeleteMe);
 
 UserRouter.route('/')
 .get(GetAllUsers)
@@ -44,7 +46,7 @@ UserRouter.get('/all', async (req, res, next)=>{
 	})
 });
 
-UserRouter.delete('/all', async (req, res, next)=>{
+UserRouter.delete('/all', async ( req, res, next )=>{
 	const users = await UserModel.deleteMany();
 	res.status(204)
 	.json({
