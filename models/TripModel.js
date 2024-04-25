@@ -1,12 +1,13 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const User = require('./UserModel');
 /*	Mongoose starts with a Schema mapping to a MongoDB 
 	collection and defining document shape */
 const { Schema } = mongoose;
 const { model } = mongoose;
 
 /* Creating Our Schema definition */
-const TripSchema = new mongoose.Schema(
+const TripSchema = new Schema(
 	{
 	  name: {
 		type: String,
@@ -68,10 +69,10 @@ const TripSchema = new mongoose.Schema(
 		type: String,
 		trim: true
 	  },
-	  imageCover: {
-		type: String,
-		required: [true, 'A tour must have a cover image']
-	  },
+	//   imageCover: {
+	// 	type: String,
+	// 	required: [true, 'A tour must have a cover image']
+	//   },
 	  images: [String],
 	  createdAt: {
 		type: Date,
@@ -82,20 +83,67 @@ const TripSchema = new mongoose.Schema(
 	  secretTour: {
 		type: Boolean,
 		default: false
-	  }
+	  },
+	  startLocation : {
+		type: {
+			type :  String,
+			default : 'Point',
+			enum: ["Point"]
+		},
+		coordiantes : {
+			type : [Number],
+			address : String,
+			description : String
+		}
+	  },
+	  locations : [
+			{
+				type: {
+					type: String,
+					default: "Point",
+					enum : ['Point']
+				},
+				coordiantes : [Number],
+				address : String,
+				description: String,
+				day: Number,
+			}
+		],
+		guides: [
+			{
+				type: Schema.ObjectId,
+				ref: 'User'
+			}
+		]
+		// guides: [
+		// 	{
+		// 		type: mongoose.Schema.OobjectId,
+		// 		ref: 'User'
+		// 	}
+		// ]
 	},
 	{
 	  toJSON: { virtuals: true },
 	  toObject: { virtuals: true }
-	}, {
-		toJSON: {virtuals: true},
-		toObject: {virtuals: true},
-	});
+	}
+	);
 
  // Virtual Properties
 TripSchema.virtual('durationWeeks').get(function(){
 	return this.duration / 7;
 });
+
+// virtual populate
+TripSchema.virtual('reviews', {
+	ref: 'Review',
+	foreignField: 'tour',
+	localField: '_id'
+})
+// TripSchema.pre('save', async function(next){
+// 	const guides = this.guides.map( async guide => await User.findById(guide))
+// 	this.guides = await Promise.all(guides);
+// 	next();
+// });
 
 // Document MIDDLEWARE : run before .save() and create()
 TripSchema.pre('save', function(next){
@@ -112,6 +160,13 @@ TripSchema.post('save', function(doc, next){
 	next();
 })
 
+TripSchema.pre(/^find/, function(next){
+	this.populate({
+		path: 'guides',
+		select: '-__v -passwordChangedAt -email'
+	});
+	next();
+})
 
 // QUERY MIDDLEWARE
 TripSchema.pre(/^find/, function(next){
