@@ -15,10 +15,12 @@
     "express": "^4.19.2",
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^7.2.0",
+    "hpp": "^0.2.3",
     "mongoose": "^5.13.22",
     "ndb": "^1.1.5",
     "nodemailer": "^6.9.13",
     "nodemon": "^3.1.0",
+    "pug": "^3.0.2",
     "validator": "^13.11.0",
     "xss-clean": "^0.1.4"
   }

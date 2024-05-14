@@ -2,6 +2,9 @@ const Tour = require('../models/TripModel');
 const APIFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchasync');
 const AppError = require('../utils/appError');
+const {
+	deleteOne
+	} = require('../controllers/handlerFactory');
 
 exports.CreateTrip = catchAsync( async(req, res, next)=>{
 	const tour = await Tour.create(req.body);
@@ -13,6 +16,7 @@ exports.CreateTrip = catchAsync( async(req, res, next)=>{
 })
 
 exports.GetAllTrips = catchAsync (async ( req, res, next) => {
+	console.log(req.user);
 	const features = new APIFeatures(Tour.find(), req.query);
 	features
 	.filter()
@@ -31,7 +35,10 @@ exports.GetAllTrips = catchAsync (async ( req, res, next) => {
 
 exports.GetTrip = catchAsync(async( req, res, next ) => {
 
-	const tour = await Tour.findById(req.params.id);
+	// populate to fill out the referenced users
+	const tour = await Tour.findById(req.params.id)
+	.populate('reviews');
+
 	if (!tour) {
 		return next(new AppError('Trip not found!', 404));
 	}
@@ -57,18 +64,7 @@ exports.UpdateTrip = catchAsync( async( req, res, next ) => {
 	})
 })
 
-exports.DeleteTrip = catchAsync(async( req, res, next ) => {
-	const tour = await Tour.findByIdAndDelete(req.params.id);
-	if (!tour) {
-		return next(new AppError('Trip not found!', 404));
-	}
-	res.status(204)
-	.json({
-		status: 'Success',
-		data: tour
-	})
-})
-
+exports.DeleteTrip = deleteOne(Tour);
 // aggregation
 
 exports.getTripStats = catchAsync( async (req, res, next) => {
@@ -145,3 +141,11 @@ exports.getMonthlyPlan = catchAsync( async ( req, res, next) =>{
 		data : plan
 	})
 })
+
+// db.podcasts.findAndModify({
+// 	query: { _id: ObjectId("628682d92f3fa87b7d86dcce") },
+// 	update: { $inc: { sightings_count: 1 } },
+// 	new: true,
+//   });
+
+//   db.sales.find({ "items.name": { $in: ["laptop", "backpack", "printer paper"] }, "storeLocation": "London", }).sort({ saleDate: -1, }).limit(3)

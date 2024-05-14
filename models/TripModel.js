@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
-const User = require('./UserModel');
 /*	Mongoose starts with a Schema mapping to a MongoDB 
 	collection and defining document shape */
 const { Schema } = mongoose;

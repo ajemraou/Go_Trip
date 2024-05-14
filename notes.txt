@@ -1,0 +1,48 @@
+REFERENCED / NORMALIZED
+{
+	"_id" : ObjectID('22'),
+	.
+	.
+	.
+	.
+	"actors" : [
+		ObjectID(124),
+		ObjectID(125)
+	]
+}
+
+EMBEDDED / DENORMALIZED
+{
+	"_id" : ObjectID('22'),
+	.
+	.
+	.
+	.
+	"actors" : [
+		{
+			"name" : "Aa",
+			"age" : 35
+		},
+		{
+			"name" : "Aa",
+			"age" : 35
+		}
+	]
+}
+
+// when to embed and when to refference ? 
+// How two datasets are realated to each other
+// how often data is read and written.
+// how we want to query.
+
+Types of REFERENCING
+CHILD REFERENCING
+PARENT REFERENCING
+TWO-WAY REFERENCING
+
+
+MongoDB Operators:
+query : <field> : { operator : <value>}
+
+
+{ <field>: { $elemMatch: { <query1>, <query2>, ... } } }

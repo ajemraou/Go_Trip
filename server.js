@@ -18,12 +18,13 @@ mongoose.connect(process.env.DATABASE, {
 	useCreateIndex: true,
 	useFindAndModify: true
 })
-
 .then((con) => {
 	console.log('Successfuly connected . . .');
 
 })
-
+.catch(err =>{
+	console.error(err);
+});
 
 const server = app.listen(process.env.PORT || 3000,'127.0.0.1',(err)=>{
 	if (err){
