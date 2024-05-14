@@ -113,12 +113,6 @@ const TripSchema = new Schema(
 				ref: 'User'
 			}
 		]
-		// guides: [
-		// 	{
-		// 		type: mongoose.Schema.OobjectId,
-		// 		ref: 'User'
-		// 	}
-		// ]
 	},
 	{
 	  toJSON: { virtuals: true },
