@@ -4,6 +4,7 @@ const app = require('./app');
 const dotenv = require('dotenv');
 const Tour = require('./models/TripModel');
 
+/* For development purposes only */
 process.on('uncaughtException', err => {
 	console.log('UNCAUGHT EXCEPTION! Shtting down . . . .');
 	console.log(err.name, err.message);
@@ -12,6 +13,10 @@ process.on('uncaughtException', err => {
 	})
 })
 
+/* 
+*	establishing a connection between 
+*	our driver and a remote mongodb database
+*/
 dotenv.config();
 mongoose.connect(process.env.DATABASE, {
 	useNewUrlParser: true,
@@ -34,7 +39,7 @@ const server = app.listen(process.env.PORT || 3000,'127.0.0.1',(err)=>{
 })
 
 
-// For development purposes only
+/* For development purposes only */
 if (process.argv[2] === '--import'){
 	(async function ImportData() {
 		const toursContent = fs.readFileSync('./dev-data/tours.json', 'utf-8');
@@ -49,7 +54,7 @@ if (process.argv[2] === '--import'){
 		}
 	  })();
 }
-
+/* For development purposes only */
 if (process.argv[2] === '--delete'){
 	(async function DeletetData() {
 		try{
@@ -62,9 +67,8 @@ if (process.argv[2] === '--delete'){
 		}
 	  })();
 }
-
-
-// listen fot unhadledRejection globaly.
+/* For development purposes only */
+// listen for unhadledRejection globaly.
 process.on('unhandledRejection', err => {
 	console.log(`${err.name} : ${err.message}`);
 	server.close( () => {
