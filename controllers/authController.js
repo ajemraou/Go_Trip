@@ -19,9 +19,7 @@ const CreateSendToken = (user, statusCode, res) => {
 		// secure : true, // only in production with https
 		httpOnly:true
 	}
-	
 	res.cookie('jwt', token, cookieOptions);
-
 	res.status(statusCode)
 	.json({
 		status : "Success",
@@ -33,42 +31,33 @@ const CreateSendToken = (user, statusCode, res) => {
 }
 
 exports.SignUp = catchasync( async ( req, res, next ) => {
-	const newUser = await User.create(req.body);
-	// const newUser = await User.create({
-	// 	name : req.body.name,
-	// 	email : req.body.email,
-	// 	password : req.body.password,
-	// 	passwordConfirm : req.body.passwordConfirm
-	// });
+	/*
+	*	transform `req.body` into a `require` object 
+	*	in order to prevent users from manipulating our roles, 
+	*	such as a user marking themselves as an admin during the signup process.
+	*/
+	const newUser = await User.create({
+		name : req.body.name,
+		email : req.body.email,
+		password : req.body.password,
+		passwordConfirm : req.body.passwordConfirm
+	});
 	CreateSendToken(newUser, 201, res);
 });
 
 exports.LogIn = catchasync( async ( req, res, next ) => {
 	const {email, password} = req.body;
-	// Check if wmail and password exist
+	// Verify the presence of the email and password
 	if (!email || !password )return next(new AppError('Please provide email and password!', 400));
 	// Check if the user exist && password correct
 	const user = await User.findOne({email}).select('+password');
-
+	// correctPassword is just an instace method that already added.
 	if ( !user || !await user.correctPassword(password, user.password ) ){
 		return next(new AppError('Incorrect email or password', 401));
 	}
 	// if everything ok, send token to client
 	CreateSendToken(user, 200, res);
 });
-
-// const verification =  function(token, secret){
-// 	return new Promise(function(resolve, reject){
-// 		jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
-// 			if (err){
-// 				return reject(err);
-// 			}
-// 			resolve(decoded);
-// 		})
-// 	})
-// }
-
-
 
 exports.protect = catchasync( async (req, res, next) => {
 	let token;
@@ -90,16 +79,13 @@ exports.protect = catchasync( async (req, res, next) => {
 	}
 	// Check if user changed password after the token was issued
 	user.changedPasswordAfter(iat);
-	// if (password was changed ){
-	// 	return next(new AppError('User recently changed password! Please log in agin', 401));
-	// }
 	//GRANT ACCESS TO PROTECTED ROUTE
 	req.user = user;
 	next();
 });
 
 
-exports.restrictTo = (...roles) => {
+exports.restrictTo = ( ...roles ) => {
 	return (req, res, next) => {
 		if ( !roles.includes(req.user.role) ){
 			return next(new AppError('You do not have permission to perform this action', 403));
@@ -147,8 +133,6 @@ exports.forgotPassword = async (req, res, next) => {
 }
 
 exports.resetPassword = async (req, res, next) => {
-	console.log('Reset Password');
-
 	// get user based on the token 
 	const hashedToken = crypto.createHash('sha256')
 	.update(req.params.token)
@@ -173,20 +157,18 @@ exports.resetPassword = async (req, res, next) => {
 	user.passwordResetExpires = undefined;
 	user.save();
 	// log the user in, send JWT
-
 	CreateSendToken(user, 200, res);
 }
 
 exports.updatePassword = catchasync( async(req, res, next) => {
 	const { oldPassword, password, passwordConfirm } = req.body;
-
 	// Get the user from the collection 
 	const user = await User.findById(req.user._id).select('+password');
 	// Check if the posted password is correct
 	if ( !await user.correctPassword(oldPassword, user.password) ){
 		return next(new AppError('Wrong password, Please try agin!', 401));
 	}
-	//	if so, update the password
+	// update the password
 	user.password = password;
 	user.passwordConfirm = passwordConfirm;
 	await user.save();
